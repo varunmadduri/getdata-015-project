@@ -1,4 +1,4 @@
+Here's a description of the variable names in the R script (run_analysis.R):
 
-run_analysis.R: All the R code is in the run_analysis.R file
-
-tidyData.txt: The output containing the tidy data set
+	filenames:		list of files in the training and test data sets
+	
