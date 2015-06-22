@@ -39,18 +39,40 @@ stdDevCols <- grep("-std()",  features$feature, fixed = T)
 filterCols <- sort(c(meanCols, stdDevCols))
 filterColNames <- features$feature[filterCols]
 
+# Clean up col names
+filterColNames <- gsub("\\(\\)", "", filterColNames)
+filterColNames <- gsub("-", "_", filterColNames)
+
 data <- read.csv("./combined/X.txt", sep = " ", header = F)
 data <- data[,filterCols]
 colnames(data) <- filterColNames
 
+## ---------------------
+## 3) Assign the activity name to the data frame
+## ---------------------
 activities <- read.csv("./combined/Y.txt", header = F)
 activityLabels <- read.csv("./activity_labels.txt", sep = " ", header = F)
 colnames(activities) <- c("code")
 colnames(activityLabels) <- c("code", "activity")
 activities <- merge(activities, activityLabels, by = "code")
 
-## ---------------------
-# Assign the activity name to the data frame
-## ---------------------
 data <- cbind(activities$activity, data)
 data <- rename(data, c("activities$activity" = "activity"))
+
+
+## ---------------------
+## 4) Get the subjects and assign them to each of the rows in the cOmbined data set
+## ---------------------
+subjects <- read.csv("./combined/subject.txt", header = F)
+colnames(subjects) <- c("subject")
+data <- cbind(subjects, data)
+
+## ---------------------
+## 5) Summary by activity and subject
+## ---------------------
+data$subject <- as.factor(data$subject)
+data$activity <- as.factor(data$activity)
+
+outputData <- ddply(data, .(subject, activity), numcolwise(mean))
+write.csv(outputData, file = "./tidyData.csv", sep = ",", col.names = T, row.names = F, quote = F)
+
